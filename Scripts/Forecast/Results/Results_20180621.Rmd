@@ -1,0 +1,436 @@
+---
+title: "Q cajeros1.3.1 results"
+output: html_notebook
+---
+
+```{r setup}
+knitr::opts_knit$set(root.dir = normalizePath("../.."))
+```
+
+```{r}
+## Starting 
+
+# Clean environment
+rm(list=ls())
+# Disable scientific notation
+options(scipen=999)
+# Change prompt
+options(prompt="Q_Cajeros_1.3.1> ", continue=" ")
+
+# Load utilities functions (change wd, auxiliary scripts...)
+source("Scripts/utilities.R")
+set_environment()
+``` 
+
+```{r}
+import("ggplot2") # visualizations
+import("ggforce") # visualization tools
+import("plotly") # interactive visualizations
+import("grid") # visualizations
+import("gridExtra")
+source("Scripts/utiles/text_cleaner.R")
+source("Scripts/utiles/theme_ts.R")
+# Set up paths
+```
+
+```{r}
+data <- fread("Data/Staging/TRX_HIST_20180531.csv", colClasses = "character")
+
+of_dicc <- fread("Data/Dictionaries/offices_dictionary.csv",
+                 colClasses = "character")
+
+exclude_offices <- fread("Data/Meta/exclude_analysis_20180531.csv")
+exclude_offices <- exclude_offices$LLAVE %>% unique
+exclude_offices <- c(exclude_offices, "222390", "223250", "226150")
+
+holidays <- fread("Data/Meta/holiday_dummy.csv")
+paydays <- fread("Data/Meta/payday_dummy.csv")
+
+holidays[ , FECHA := as.Date(FECHA)]
+paydays[, FECHA := as.Date(FECHA)]
+```
+
+```{r}
+# Making staging data (excliuding offices)
+staging <- staging_maker(data, of_dicc)
+current_offices <- staging[, .(LAST_DATE = range(FECHA)[2]),
+                           by = LLAVE][LAST_DATE > "2018-04-30", LLAVE]
+hist_offices <- staging[, .(LAST_DATE = range(FECHA)[1]),
+                        by = LLAVE][LAST_DATE < "2016-12-31", LLAVE]
+staging <- staging[!(LLAVE %in% exclude_offices) ]
+staging <- staging[LLAVE %in% current_offices  & 
+                     LLAVE %in% hist_offices]
+#fwrite(staging, "Data/Staging/staging.csv", row.names = F)
+```
+```{r}
+all <- unique(data$LLAVE)
+```
+
+```{r}
+### Dates parameters 
+train_cut <-  as.Date("2018-03-31") # last day (friday) of training data
+test_cut <- as.Date("2018-05-31") # last day on validation
+last_test_date <- as.Date("2018-05-31") # las day on testing or to forecast recursively
+last_forecast_date <- as.Date("2018-12-31")
+set.seed(1) 
+
+```
+
+
+```{r}
+offices <- unique(staging$LLAVE)
+total <- length(offices)
+office_names <- staging[,.(NOMBRE = paste(unique(CNL_JORNADA) ,
+                                          unique(NOMBRE), 
+                                          unique(BANDERA ))) ,
+                        by = LLAVE][, NOMBRE] %>% text_cleaner()
+length(office_names) == length(offices)
+
+```
+
+```{r}
+### Validation days 
+dates_val <- dates_maker(from = train_cut, to = test_cut)
+dates_val <- dates_val$FECHA
+## forecast
+dates_forecast <- dates_maker(from = last_test_date, to = last_forecast_date)
+dates_forecast <- dates_forecast$FECHA
+```
+
+## Importing results 
+```{r}
+load("Results/Forecast_201805/5offices.RDta")
+lapply(Results, "[[", "rmse_train")
+names(Results[[5]])
+
+```
+
+```{r}
+results <- list()
+
+files <- list.files("Results/Forecast_201805")
+position <- sapply(strsplit(files, "o"), "[[", 1) %>% as.numeric
+
+location <- data.table(files = files , position = position ) 
+location <- location[order(position)] 
+
+iter1 <- c(0, location$position)
+
+i=1
+j=1
+
+through <- seq(1,length(iter1)-1)
+
+for(i in through){
+  along <- seq(iter1[i]+1, iter1[i+1])
+  upload <- paste("Results/Forecast_201805", location[i, files], sep = "/")
+  load(upload)
+  for(j in along){
+     results[[j]] <- Results[[j]]
+  }
+}
+
+lengthResults <- sapply(results, "[[", "rmse_train") %>% length()
+
+for(i in 1:lengthResults){
+  if(is.null(results[[i]]) == TRUE){
+    print(i)
+  }
+}
+rm(Results)
+
+```
+
+```{r}
+models <- sapply(results, "[[", "model_name")
+#models <- models[-which(sapply(models, is.null))]
+models <- unlist(models)
+models <- text_cleaner(models)
+docs <- Corpus(VectorSource(models))
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(freq=v)
+head(d, 10)
+```
+
+```{r}
+noResults <- c()
+for(i in 1:lengthResults){
+  if(is.null(results[[i]]) == TRUE){
+    print(i)
+    noResults[i] <- i
+  }
+}
+noResults <- noResults[is.na(noResults) != T]
+```
+
+```{r}
+officesNoResults <- offices[noResults]
+officesResults <- offices[!(seq(1, length(offices)) %in% noResults)]
+iterator <-  seq(1,length(results))
+iterator <- iterator[!(iterator %in% noResults)]
+```
+
+```{r}
+#results1 <- results[-which(sapply(results, is.null))]
+```
+
+```{r}
+matrix_results <- data.table(LLAVE = offices[iterator])
+matrix_results[, model_name := sapply(results, "[[", "model_name")]
+matrix_results[, rmse_train := sapply(results, "[[", "rmse_train")]
+matrix_results[, rmse_val := sapply(results, "[[", "rmse_val")]
+matrix_results
+```
+
+```{r}
+
+## Forecast plots 
+ppi <- 300
+matrix_list <- list()
+
+j = 1
+#for(j in 451:713){
+  office_name <- office_names[j]
+  office <- offices[j]
+  
+  dataset <- staging[LLAVE == offices[j],
+                     .(TXS, FECHA, DAY, MES, YEAR)]
+  
+  datalist <- master_maker(dataset, train_cut, test_cut,
+                           holidays, paydays )
+  matrix_set <- datalist$matrix_set
+  dates_train <- matrix_set[FECHA <= train_cut, FECHA]
+  
+  matrix_train <- datalist$matrix_train
+  matrix_val <- datalist$matrix_val
+  #matrix_test <- datalist$matrix_test
+  
+  fit_train <-results[[j]]$fit_train
+  fit_val <-results[[j]]$fit_val
+#  forecast_test <- results[[j]]$forecast_test
+  forecast_rec <- results[[j]]$forecast_rec
+  model_name <- results[[j]]$model_name
+  
+  matrix <- round(matrix_results[j,-c(1,2), ],2)
+ 
+  datas <- data.table(TXS = c(matrix_train$TXS,
+                              matrix_val$TXS,
+                              # matrix_test$TXS, 
+                              # forecast_test,
+                              forecast_rec
+  ),
+  Fecha = c(dates_train,
+            dates_val,
+#            rep(dates_test,2),
+            dates_forecast
+  ),
+  Tipo = c(rep("Entrenamiento", nrow(matrix_train)),
+           rep("Validación ", nrow(matrix_val)),
+           # rep("Testeo", length(dates_test)),
+           # rep("Pronóstico testeo", length(dates_test)),
+           rep("Pronóstico recursivo", length(dates_forecast))
+  )
+  )
+
+  plot2 <- ggplot(datas, aes(Fecha, TXS, color = Tipo, linetype = Tipo)) +
+    geom_line(size = 0.8, alpha = 0.7) +
+    ylab("Número de transacciones") +
+    labs(title = paste0("Pronóstico ",
+                        office_name, " entrenamiento, validación y testeo" ),
+         subtitle = model_name) +
+    geom_vline(xintercept=as.numeric(c(train_cut, test_cut, last_test_date)),
+               linetype=4, size = 1.2, color = "darkgreen")+
+  #  facet_zoom(x = Fecha %in% c(dates_test, dates_forecast), zoom.size = 1.2)  +
+    scale_linetype_manual(values = c(1,1,2)) +
+    theme_ts + theme(legend.position="top")
+
+  png(paste("Results/Plots_201805/", office,
+            office_name, ".png",sep=""),
+      width=20*ppi, height=10*ppi, res= ppi )
+  print( plot2
+    # grid.arrange(plot2, matrix,
+    #              nrow=2,
+    #              as.table=TRUE,
+    #              heights=c(3,1))
+  )
+  dev.off()
+  
+}
+
+matrix_results1 <- rbindlist(matrix_list)
+
+fwrite(matrix_results, "Results/Results.csv")
+
+
+```
+
+```{r}
+j = 1
+tabla_results <- list()
+for(j in c(1:length(results))){
+  
+  TXS <- results[[j]]$forecast_rec
+  forecast <- data.table(FECHA = dates_forecast, TXS)
+  forecast[, MES := as.numeric(substr(FECHA, 6,7))]
+  forecast[, YEAR := as.numeric(substr(FECHA, 1,4))]
+  forecast <- merge(forecast, holidays, by = "FECHA")
+  forecast[HOLIDAYS == 1, TXS := 0]
+  #forecast[, HOLIDAYS := NULL]
+  forecast <- forecast[ !(MES %in% c(3))]
+  forecast[, LLAVE := officesResults[j]]
+  tabla_results[[j]] <- forecast  
+}
+
+forecast_daily <- rbindlist(tabla_results)
+# tabla_results2 <- tabla_results1[!(OFICINA %in% no_offices$OFICINA), ]
+
+fwrite(forecast_daily, "Results/FORECAST_daily_20180622.csv")
+forecast_daily
+```
+
+```{r}
+uniqueN(forecast_daily$LLAVE)
+```
+
+```{r}
+forecast_monthly <- forecast_daily[, .(TXS = sum(TXS)), by = .(LLAVE, MES)]
+```
+### Dias habiles
+```{r}
+holidays <- fread("Data/Meta/holiday_dummy.csv")
+holidays[ , FECHA := as.Date(FECHA)]
+dates_forecast <- dates_maker(from = last_test_date, to = last_forecast_date)
+dates_forecast <- merge(dates_forecast, holidays, by = "FECHA")
+dates_forecast[, DAY := as.numeric(substr(FECHA, 9,10))]
+dates_forecast[, MES := as.numeric(substr(FECHA,6,7))]
+dates_forecast[, YEAR := as.numeric(substr(FECHA,1,4))]
+
+base <- dates_forecast[HOLIDAYS == 0, ]
+dias_hb <- base[, .(DIAS_HB=.N), by = MES]
+```
+
+# Calculo tasa de ocupacion 
+
+# proporciones de efectivo por hora y cajeros
+
+```{r}
+frecuencia <- fread("Data/Meta/dt_frecu_cash.csv")
+frecuencia <- frecuencia[CAJ.AVS == "caja" & MES == "2018-05"]
+frecuencia <- frecuencia[is.na(No.CAJ.H) != T]
+frecuencia
+```
+
+```{r}
+unique(frecuencia$MES)
+frecuencia[, PROP_HORA := SUM.Tx/ sum(SUM.Tx), by = .(LLAVE, MES)]
+frecuencia1 <- frecuencia[, .(LLAVE, HORARIO, PROP_HORA,
+                                               CAJ_HORA = No.CAJ.H)]
+frecuencia1[, sum(PROP_HORA), by = LLAVE][,sum(V1)] == uniqueN(frecuencia1$LLAVE)
+frecuencia1[, LLAVE := as.character(LLAVE)]
+frecuencia1
+```
+
+# proporciones de efectivo 
+# base de cajeros  totales
+```{r}
+porcEfectivo <- fread("Data/Meta/dt_pronostico.csv")
+numerics <- c("No.CAJ",
+              "MAYORES_1.PORC",
+              "MENORES_1.PORC",
+              "OTROS.PORC")
+porcEfectivo[, (numerics) := lapply(.SD, as.numeric), .SDcols = numerics]
+porcEfectivo <- porcEfectivo[MES.ANO == "2018-05", .(LLAVE = as.character(LLAVE),
+                                                     MAYORES_1.PORC,
+                                                     MENORES_1.PORC, OTROS.PORC,
+                                                     CAJ_TOTAL = No.CAJ)]
+porcEfectivo
+```
+
+```{r}
+dup <- porcEfectivo[duplicated(porcEfectivo$LLAVE) == TRUE, LLAVE]
+porcEfectivo[LLAVE == dup]
+```
+```{r}
+porcEfectivo <- porcEfectivo[duplicated(porcEfectivo$LLAVE) == FALSE]
+```
+
+# comparacion entre bases 
+
+###pronostico y frecuencias
+```{r}
+comp1 <- merge(forecast_daily[, .(LLAVE = unique(LLAVE), pronostico = unique(LLAVE))], 
+               frecuencia1[, .(LLAVE = unique(LLAVE) ,frecucia = unique(LLAVE) )] , 
+               by = "LLAVE", all = T)
+comp1[is.na(pronostico)| is.na(frecucia)]
+```
+## proporciones de efectivo y pronostico 
+
+```{r}
+comp2 <- merge(forecast_daily[, .(LLAVE = unique(LLAVE), 
+                                  pronostico = unique(LLAVE))], 
+               porcEfectivo[, .(LLAVE  , porc = unique(LLAVE))], 
+               by = "LLAVE", all = T)
+
+comp2[is.na(pronostico) | is.na(porc)]
+```
+
+## proporcion de efectivo y frecuecia  
+
+```{r}
+comp3 <- merge(porcEfectivo[, .(LLAVE  ,porc = unique(LLAVE) )], 
+               frecuencia1[, .(LLAVE = unique(LLAVE) ,frecucia = unique(LLAVE) )] , 
+               by = "LLAVE", all = T)
+comp3[is.na(porc)| is.na(frecucia)]
+
+```
+
+```{r}
+fwrite(comp1, "Results/comparacionLlaves.csv")
+```
+
+
+## tasa de ocupacion mensual 
+
+```{r}
+forecast_monthly <- merge(forecast_monthly, porcEfectivo, by = "LLAVE")
+forecast_monthly <- merge(forecast_monthly, dias_hb, by = "MES")
+forecast_monthly[, TASA.OCU := TXS * (1 / (
+  5.5 * CAJ_TOTAL * DIAS_HB *  (MENORES_1.PORC * 32 + MAYORES_1.PORC * 27 +
+  OTROS.PORC * 37)
+  ))]
+forecast_monthly
+```
+
+```{r}
+forecast_daily<- merge(forecast_daily, porcEfectivo, by = "LLAVE")
+forecast_daily <- merge(forecast_daily, dias_hb, by = "MES")
+forecast_daily[, TASA.OCU := TXS * (1 / (
+  5.5 * CAJ_TOTAL * (MENORES_1.PORC * 32 + MAYORES_1.PORC * 27 +
+  OTROS.PORC * 37)
+  ))]
+forecast_daily
+```
+
+```{r}
+forecast_hourly <- subset(forecast_monthly, select = -TASA.OCU )
+forecast_hourly <- merge(forecast_hourly,  frecuencia1, by = "LLAVE",
+                         allow.cartesian = T)
+forecast_hourly[, SERVICE_RATE := MAYORES_1.PORC*27 + MENORES_1.PORC*32 + OTROS.PORC*37]
+
+forecast_hourly[, TRX_PORC := TXS * PROP_HORA ]
+forecast_hourly[, TRX_RATE := TXS * PROP_HORA/DIAS_HB]
+forecast_hourly[, TASA.OCU.TEO := TRX_RATE/( CAJ_TOTAL * SERVICE_RATE)]
+forecast_hourly[, TASA.OCU.OBS := TRX_RATE/( CAJ_HORA * SERVICE_RATE)]
+forecast_hourly[, horaPico := ifelse(max(TRX_RATE) == TRX_RATE,1,0 ), by = .(LLAVE, MES)]
+forecast_hourly
+ 
+```
+```{r}
+fwrite(forecast_hourly, "Results/forecast_hourly.csv")
+fwrite(forecast_daily, "Results/forecast_daily.csv")
+fwrite(forecast_monthly, "Results/forecast_monthly.csv")
+```
+
+

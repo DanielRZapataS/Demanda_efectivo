@@ -1,0 +1,25 @@
+{"paths":{
+  "division": ["Hisrorical", "Forecast"],
+  "scripts_path": "Scripts",
+  "results_path": "Results",
+  "data_path": "Data",
+  "hist_path": "out"
+  },
+  "forecasting":{
+  "current_month": ["201805"], 
+  "train_cut": "2017-12-31",
+  "test_cut": "2018-02-28",
+  "last_test_date": "2018-03-31", 
+  "last_forecast_date":"2018-04-30",
+  "do.test" : "TRUE",
+  "xreg_vector" :["payday", "holidays_pre" , "holidays_post",
+                 "payday_pre", "payday_post", "half_month"]
+},
+"filtering":{
+  "current_offices_date" : "2018-02-28",
+  "hist_offices_date" : "2016-12-31"
+},
+"results":{
+  "make.plots" : "FALSE"
+}
+}

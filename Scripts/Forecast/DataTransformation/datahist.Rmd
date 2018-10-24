@@ -1,0 +1,227 @@
+---
+title: "Q_cajeros 1.3.1"
+output: html_notebook
+--- 
+
+```{r setup}
+knitr::opts_knit$set(root.dir = normalizePath("../.."))
+```
+
+```{r}
+## Starting 
+
+# Clean environment
+rm(list=ls())
+# Disable scientific notation
+options(scipen=999)
+# Change prompt
+options(prompt="Q_Cajeros_1.3> ", continue=" ")
+```
+
+```{r}
+# Load utilities functions (change wd, auxiliary scripts...)
+source("Scripts/utilities.R")
+# Set up paths
+set_environment()
+```
+
+
+
+```{r}
+of_dicc <- fread("Data/Dictionaries/offices_dictionary.csv",
+                 colClasses = "character")
+var <- colnames(of_dicc)
+colnames(of_dicc)[which(var == "OFICINA")] <- colnames(data)[1]
+
+#exclude_offices <- fread("Data/Meta/exclude_offices.csv")
+
+holidays <- fread("Data/Meta/holiday_dummy.csv")
+paydays <- fread("Data/Meta/payday_dummy.csv")
+
+holidays[ , FECHA := as.Date(FECHA)]
+paydays[, FECHA := as.Date(FECHA)]
+```
+
+```{r}
+dias_habiles <- function(x, y){
+  calendar<- seq.Date(from = y, to = x,
+                    by = "day")
+  calendar <- data.table(FECHA = calendar)
+  calendar <- merge(calendar, holidays, by = "FECHA")
+  calendar[, WEEKDAY := wday(FECHA)]
+  calendar <- calendar[!(WEEKDAY %in% c(7,1)) & HOLIDAYS == 0 ]
+  return(nrow(calendar))
+}
+```
+
+
+
+mirar datos de 5 años 
+```{r}
+datahist <- fread("Data/Original/TRX_HIST.csv")
+datahist
+```
+```{r}
+long <- 3
+ for (i in min(datahist[, .(nchar(CNL_OFICINA))]):(long - 1))
+ {
+   datahist[, l := nchar(CNL_OFICINA)]
+   datahist[, CNL_OFICINA := ifelse(l < long, paste(0, CNL_OFICINA, sep =
+                                                          ""),
+                                        CNL_OFICINA)]
+ }
+ datahist[, l := NULL] 
+ 
+ datahist[is.na(BANDERA) == TRUE, BANDERA := 0]
+ datahist[, LLAVE := paste0(CNL_JORNADA, CNL_OFICINA, BANDERA)]
+ datahist
+```
+
+```{r}
+
+
+datahist[, MONTH := substr(CNL_FECHA, 3,5)]
+unique(datahist$MONTH)
+datahist[, MONTH := factor(MONTH, 
+                           labels = c("01", "02", "03", 
+                                       "04", "05", "06",
+                                       "07", "08", "09",
+                                       "10", "11", "12"),
+                           levels = c("JAN", "FEB", "MAR",
+                                      "APR", "MAY", "JUN",
+                                      "JUL", "AUG", "SEP",
+                                      "OCT", "NOV", "DEC"),
+                           ordered = T)]
+#datahist[, MONTH := levels(MONTH), by = 1:nrow(datahist) ]
+summary(datahist$MONTH)
+class(datahist$MONTH)
+```
+
+```{r}
+datahist[, DAY := substr(CNL_FECHA, 1,2)]
+datahist[, YEAR := substr(CNL_FECHA, 6,9)]
+datahist[, FECHA := paste(DAY, MONTH, YEAR, sep = "-")] 
+datahist[, FECHA := as.Date(FECHA, "%d-%m-%Y")]
+#unique(datahist$FECHA)
+datahist[is.na(FECHA),]
+range(datahist$FECHA)
+```
+
+```{r}
+datahist <- datahist[order(LLAVE, FECHA)]
+```
+
+```{r}
+datahist[, .N, by = .(MONTH, YEAR)]
+```
+
+```{r}
+datahist1 <- copy(datahist[FECHA > "2016-08-31"])
+datahist1[, FECHA_LAG := shift(FECHA, 1, 0, "lag")]
+datahist1[, DIFF := FECHA - FECHA_LAG]
+datahist1 <- datahist1[FECHA != "2016-09-01"]
+
+datahist1 <- datahist1[DIFF > 10]
+#data <- merge(data, holidays, by = "FECHA") 
+
+datahist1[, DIAS_HABILES := dias_habiles(FECHA, FECHA_LAG), by = 1:nrow(datahist1)] 
+datahist1 <- datahist1[ DIAS_HABILES > 10][order(- DIAS_HABILES) ]
+
+datahist1
+```
+
+```{r}
+exclude <- datahist1
+exclude
+```
+```{r}
+unique(exclude$LLAVE)
+uniqueN(exclude$LLAVE)
+exclude[, .N, by = LLAVE][order(-N)]
+exclude[order(LLAVE,- DIAS_HABILES), .(LLAVE, FECHA, FECHA_LAG, DIAS_HABILES)]
+```
+
+```{r}
+fwrite(exclude, "Data/Meta/exclude_analysis.csv")
+```
+
+
+```{r}
+datahist <- datahist[FECHA > "2016-08-31", .(LLAVE, CNL_OFICINA, CNL_JORNADA, BANDERA, FECHA, TXS = Cantidad_trx)]
+datahist
+```
+```{r}
+fwrite(datahist, "Data/Staging/TRX_HIST.csv")
+```
+
+```{r}
+datahist <- fread("Data/Staging/TRX_HIST.csv", colClasses = "character")
+datahist[, FECHA := as.Date(FECHA, "%Y-%m-%d" )]
+datahist
+```
+
+```{r}
+data <- read_xlsx("Data/Original/Res_Datos_daniel_canales.xlsx")
+data <- data.table(data)
+data[, BANDERA := as.double(BANDERA)]
+data[is.na(BANDERA) == TRUE, BANDERA := 0]
+data[,(names(data))  := (lapply(.SD, as.character))]
+
+data[, LLAVE := paste0(CNL_JORNADA, CNL_OFICINA, BANDERA)]
+setnames(data, "CNL_FECHA", "FECHA") 
+data[, FECHA := as.Date(FECHA, "%Y-%m-%d" )]
+data
+```
+
+```{r}
+setcolorder(data, colnames(datahist))
+```
+
+```{r}
+range(datahist$FECHA)
+```
+
+```{r}
+range(data$FECHA)
+```
+
+```{r}
+datacomp <- rbindlist(list(datahist[FECHA < range(data$FECHA)[1] ], data))
+datacomp <- datacomp[order(LLAVE, FECHA)]
+datacomp
+```
+
+```{r}
+datahist1 <- copy(datacomp)
+datahist1[, FECHA_LAG := shift(FECHA, 1, 0, "lag")]
+datahist1[, DIFF := FECHA - FECHA_LAG]
+datahist1 <- datahist1[FECHA != "2016-09-01"]
+
+datahist1 <- datahist1[DIFF > 10]
+#data <- merge(data, holidays, by = "FECHA") 
+
+datahist1[, DIAS_HABILES := dias_habiles(FECHA, FECHA_LAG), by = 1:nrow(datahist1)] 
+datahist1 <- datahist1[ DIAS_HABILES > 10][order(- DIAS_HABILES) ]
+
+datahist1
+```
+
+```{r}
+exclude <- datahist1
+exclude
+```
+```{r}
+unique(exclude$LLAVE)
+uniqueN(exclude$LLAVE)
+exclude[, .N, by = LLAVE][order(-N)]
+exclude[order(LLAVE,- DIAS_HABILES), .(LLAVE, FECHA, FECHA_LAG, DIAS_HABILES)]
+```
+
+```{r}
+fwrite(exclude, "Data/Meta/exclude_analysis_20180531.csv")
+```
+
+```{r}
+fwrite(datacomp, "Data/Staging/TRX_HIST_20180531.csv")
+```
+
