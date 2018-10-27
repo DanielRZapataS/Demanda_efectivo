@@ -1,8 +1,22 @@
-Q_cajeros <- function(office , do.test, staging,train_cut, test_cut,
-                       last_test_date, last_forecast_date,
-                       holidays, paydays, xreg_vector, offices, j ){
-  dataset <- staging[LLAVE == offices[j],
-                     .(TXS, FECHA)] 
+Q_cajeros <- function(office ,
+                      do.test,
+                      staging,
+                      train_cut,
+                      test_cut,
+                      last_test_date,
+                      last_forecast_date,
+                      holidays,
+                      paydays,
+                      xreg_vector,
+                      offices,
+                      j,
+                      type = "depositos") {
+  var_type <- names(staging)[grepl(type ,names(staging))]
+  setnames(staging, "fecha", "FECHA")
+  setnames(staging, var_type, "TXS")
+  
+  dataset <- staging[codigoOficina == offices[j],
+                     .(TXS = as.numeric(TXS), FECHA)] 
   dataset[, ':='(DAY = day(FECHA),
                  MES = month(FECHA),
                  YEAR = year(FECHA))]

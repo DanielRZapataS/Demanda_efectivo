@@ -15,7 +15,8 @@ forecast_qcajeros <- function(){
   paydays <- get.path(meta_path, "payday") %>% fread()
   holidays[ , fecha := as.Date(fecha, "%d/%m/%Y")]
   paydays[,  fecha := as.Date(fecha, "%d/%m/%Y")] 
-  
+  names(holidays) <- toupper(names(holidays))
+  names(paydays) <- toupper(names(paydays))
   Results <- list()
   saver <- c(seq(0, length(offices), 50), length(offices))
   
@@ -33,7 +34,8 @@ forecast_qcajeros <- function(){
       
       Q_cajeros(office = j , do.test, staging,train_cut,
                 test_cut,last_test_date, last_forecast_date,
-                holidays, paydays, xreg_vector, offices, j )
+                holidays, paydays, xreg_vector, offices, j, 
+                type = "depositos" )
     
     setTkProgressBar(pb, j, label=paste( round(j/total*100, 0),
                                          "% done"))
