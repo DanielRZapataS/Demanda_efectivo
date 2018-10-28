@@ -14,7 +14,6 @@ source("Scripts/utilities.R")
 set_environment() 
 # Load configuration file and values
 config <- fromJSON("settings.json")
-# Runing historical, forecasting and results process
-#hist_maker()
-#forecast_qcajeros()
-results_maker()
+# Runing forecasting and results process
+forecast_qcajeros()
+# results_maker()

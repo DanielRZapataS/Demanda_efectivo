@@ -11,9 +11,7 @@ Q_cajeros <- function(office ,
                       offices,
                       j,
                       type = "depositos") {
-  var_type <- names(staging)[grepl(type ,names(staging))]
-  setnames(staging, "fecha", "FECHA")
-  setnames(staging, var_type, "TXS")
+ 
   
   dataset <- staging[codigoOficina == offices[j],
                      .(TXS = as.numeric(TXS), FECHA)] 
@@ -33,7 +31,7 @@ Q_cajeros <- function(office ,
   
   # Establish a list of possible values for mtry, nodesize and sampsize
   mtry <- seq((ncol(matrix_train)-1)/3, ncol(matrix_train) * 0.8, 3) %>% round(0)
-  nodesize <- seq(3, 9, 3)
+  nodesize <- c(3, 9)
   sampsize <- nrow(matrix_train) * c(0.8)
   
   ## Randome forest 
