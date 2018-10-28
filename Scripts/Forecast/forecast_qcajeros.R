@@ -7,7 +7,7 @@ forecast_qcajeros <- function(){
   #Staging
   staging <- staging_maker()
   setnames(staging, "fecha", "FECHA")
-  var_type <- names(staging)[grepl(type ,names(staging))]
+  var_type <- names(staging)[grepl(series_type ,names(staging))]
   setnames(staging, var_type, "TXS")
   #fil
   offices <- unique(staging$codigoOficina)
