@@ -105,6 +105,10 @@ master_maker <- function(dataset, train_cut, test_cut,
   neworder <- c("TXS",colnames(dataset)[-pivot])
   setcolorder(dataset, neworder)
   
+  #eliminate holidays observations 
+  dataset <- dataset[HOLIDAYS == 0, ]
+  dataset[, HOLIDAYS := NULL]
+  
   matrix_set <- dataset[FECHA >= date_cut,]
   matrix_train <- matrix_set[ FECHA <= train_cut,
                               -c("FECHA")]

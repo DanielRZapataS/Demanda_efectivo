@@ -28,6 +28,7 @@ recursive_forecast <- function(matrix_set,
   matrix_xreg[, PAYDAY_PRE := shift(PAYDAY, 1,0, "lead")]
   matrix_xreg[, PAYDAY_POST := shift(PAYDAY, 1,0, "lag")]
   matrix_xreg[, HALF_MONTH := ifelse(DAY <= 15, 1, 0)]
+  matrtix_xreg <- matrix_xreg[HOLIDAYS == 0]
   remove_col <-
     colnames(matrix_xreg)[c((colnames(matrix_xreg) %in% xreg_vector))]
   matrix_xreg <- matrix_xreg[, .SD, .SDcols = remove_col ]
@@ -104,11 +105,17 @@ recursive_forecast <- function(matrix_set,
     forecast_rec <- forecast_cb 
   }
   
+  
   ## 
   if(is.test == TRUE){
-    TXS_test <- matrix_set[ FECHA > from,
-                            .(TXS)]
-    rmse_test <- rmse(TXS_test, forecast_rec)
+    forecast_rec_table <-
+      data.table(FECHA = dates_forecast$FECHA, forecast_rec)
+    
+    TXS_test <- matrix_set[ FECHA %in% dates_forecast$FECHA,
+                            .(FECHA, TXS)]
+    forecast_rec_table <- merge(forecast_rec_table, TXS_test, by = "FECHA")
+    rmse_test <-
+      rmse(forecast_rec_table$TXS, forecast_rec_table$forecast_rec)
     return(list(rmse_train = rmse_train, rmse_val = rmse_val,
                 rmse_test = rmse_test, fit_train = fit_train,
                 fit_val = fit_val, forecast_rec = forecast_rec,

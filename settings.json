@@ -12,8 +12,8 @@
   "last_test_date": "2018-03-31", 
   "last_forecast_date":"2018-04-30",
   "do.test" : "TRUE",
-  "xreg_vector" :["payday", "holidays_pre" , "holidays_post",
-                 "payday_pre", "payday_post", "half_month"]
+  "xreg_vector" :["PAYDAY", "HOLIDAYS_PRE" , "HOLIDAYS_POST",
+                 "PAYDAY_PRE", "PAYDAY_POST", "HALF_MONTH"]
 },
 "filtering":{
   "current_offices_date" : "2018-02-28",

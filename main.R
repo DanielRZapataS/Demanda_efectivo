@@ -6,7 +6,7 @@ gc()
 # Disable scientific notation
 options(scipen=999)
 # Change prompt
-options(prompt="Aprovisionamiento1.1> ", continue=" ") 
+options(prompt="Demanda_efectivo> ", continue=" ") 
 
 # Load utilities functions (change wd, auxiliary scripts...)
 source("Scripts/utilities.R")
