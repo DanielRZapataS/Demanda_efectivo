@@ -16,7 +16,7 @@ ts_models_train <- function(matrix_train, matrix_val, xreg_vector){
   matrix_trainxreg = matrix_train[,pivot, with=FALSE]
   matrix_valxreg <- matrix_tv[,pivot, with=FALSE]  
 
-  train_ts <- ts(matrix_train$TXS, frequency = 5 )
+  train_ts <- ts(matrix_train$TXS )
   ts_models <- list(
     ARIMA = auto.arima(train_ts, xreg = matrix_trainxreg),
     ETS = ets(train_ts),
@@ -31,7 +31,7 @@ ts_models_train <- function(matrix_train, matrix_val, xreg_vector){
   rmse_train <-  apply(train_fittes,2, rmse, 
                      matrix_train$TXS[nn_pivot:nrow(matrix_train)] )
   
-  val_ts <- ts(matrix_tv$TXS, frequency = 5)
+  val_ts <- ts(matrix_tv$TXS)
   ts_validation <- list(
     ARIMA = Arima(val_ts, model = ts_models$ARIMA, xreg = matrix_valxreg),
     ETS = ets(val_ts, model = ts_models$ETS),

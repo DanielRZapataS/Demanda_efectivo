@@ -37,8 +37,7 @@ forecast_qcajeros <- function(){
       
       Q_cajeros(office = j , do.test, staging,train_cut,
                 test_cut,last_test_date, last_forecast_date,
-                holidays, paydays, xreg_vector, offices, j, 
-                type = "depositos" )
+                holidays, paydays, xreg_vector, offices, j)
     
     setTkProgressBar(pb, j, label=paste( round(j/total*100, 0),
                                          "% done"))
