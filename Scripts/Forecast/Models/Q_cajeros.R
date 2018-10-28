@@ -9,8 +9,7 @@ Q_cajeros <- function(office ,
                       paydays,
                       xreg_vector,
                       offices,
-                      j,
-                      type = "depositos") {
+                      j) {
  
   
   dataset <- staging[codigoOficina == offices[j],
