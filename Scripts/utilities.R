@@ -55,6 +55,7 @@ load_forecasting_parameters <- function(){
   last_test_date    <<- forecasting$last_test_date
   last_forecast_date    <<- forecasting$last_forecast_date
   do.test    <<- forecasting$do.test
+  series_type <<- forecasting$series_type
   xreg_vector    <<- forecasting$xreg_vector
 }
 
@@ -131,12 +132,8 @@ loadDataParameters <- function(){
   do.test <<- as.logical(do.test)
   
   # Results forecast folder 
-  forecastFolderDepositos <<- os.path.join(forecast_path,
-                                  paste0("Forecast_", "depositos"))
-  dir.create(forecastFolderDepositos)
-  forecastFolderRetiros <<- os.path.join(forecast_path,
-                                  paste0("Forecast_", "retiros"))
-  dir.create(forecastFolderRetiros)
+  forecastFolder <<- os.path.join(forecast_path, series_type)
+  dir.create(forecastFolder)
   # results tables folder  
   tablesFolder <<- os.path.join(tables_path, paste0("tables_", current_month))
   dir.create(tablesFolder)

@@ -2,8 +2,7 @@
   "division": ["Hisrorical", "Forecast"],
   "scripts_path": "Scripts",
   "results_path": "Results",
-  "data_path": "Data",
-  "hist_path": "out"
+  "data_path": "Data"
   },
   "forecasting":{
   "current_month": ["201805"], 
@@ -12,6 +11,7 @@
   "last_test_date": "2018-03-31", 
   "last_forecast_date":"2018-04-30",
   "do.test" : "TRUE",
+  "series_type" : "depositos",
   "xreg_vector" :["PAYDAY", "HOLIDAYS_PRE" , "HOLIDAYS_POST",
                  "PAYDAY_PRE", "PAYDAY_POST", "HALF_MONTH"]
 },
