@@ -33,7 +33,7 @@ ts_models_train <- function(matrix_train, matrix_val, xreg_vector){
   
   val_ts <- ts(matrix_tv$TXS)
   ts_validation <- list(
-    ARIMA = Arima(val_ts, model = ts_models$ARIMA, xreg = matrix_valxreg),
+    ARIMA = Arima(val_ts, model = ts_models$ARIMA),
     ETS = ets(val_ts, model = ts_models$ETS),
     NeuralNetwork = nnetar(val_ts, model = ts_models$NeuralNetwork,
                            xreg = matrix_valxreg)
