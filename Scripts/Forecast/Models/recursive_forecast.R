@@ -17,6 +17,7 @@ recursive_forecast <- function(matrix_set,
   
   dates_forecast <- dates_maker(from = from, to = to )
   
+  
   master_table <- matrix_set[ FECHA <= from,]
   ## xreg matrix
   matrix_xreg <- data.table(dates_forecast)
@@ -28,7 +29,9 @@ recursive_forecast <- function(matrix_set,
   matrix_xreg[, PAYDAY_PRE := shift(PAYDAY, 1,0, "lead")]
   matrix_xreg[, PAYDAY_POST := shift(PAYDAY, 1,0, "lag")]
   matrix_xreg[, HALF_MONTH := ifelse(DAY <= 15, 1, 0)]
-  matrtix_xreg <- matrix_xreg[HOLIDAYS == 0]
+  matrix_xreg <- matrix_xreg[HOLIDAYS == 0]
+  dates_to_forecast <- matrix_xreg$FECHA
+
   remove_col <-
     colnames(matrix_xreg)[c((colnames(matrix_xreg) %in% xreg_vector))]
   matrix_xreg <- matrix_xreg[, .SD, .SDcols = remove_col ]
@@ -43,10 +46,9 @@ recursive_forecast <- function(matrix_set,
   
   ## Random forest
   forecast_rf <- c()
-  nrow(dates_forecast)
   
-  for(i in 1: nrow(dates_forecast)){
-    matrix_rec <- data.table(dates_forecast[1:i,"FECHA"], 
+  for(i in 1: nrow(matrix_xreg)){
+    matrix_rec <- data.table(FECHA = dates_to_forecast[1:i], 
                              TXS = c( forecast_rf,NA))
     datarec <- master_table[,.( FECHA,TXS) ]
     l = list(datarec, matrix_rec)
@@ -59,18 +61,17 @@ recursive_forecast <- function(matrix_set,
   }
   
   ## TS
-  data_ts <- ts(master_table$TXS, frequency = 5)
+  data_ts <- ts(master_table$TXS)
   ts_models <- list(
-    ARIMA = Arima(data_ts, model = TS_results$models$ARIMA, 
-                  xreg = matrix_xreg_fit),
+    ARIMA = Arima(data_ts, model = TS_results$models$ARIMA),
     ETS = ets(data_ts, model = TS_results$models$ETS),
     NeuralNetwork = nnetar(data_ts, model = TS_results$models$NeuralNetwork,
-                           xreg = matrix_xreg_fit),
-    TBATS = tbats(data_ts, model = TS_results$models$TBATS,
-                  xreg = matrix_xreg_fit)
+                           xreg = matrix_xreg_fit)
+    # TBATS = tbats(data_ts, model = TS_results$models$TBATS,
+    #               xreg = matrix_xreg_fit)
   )
   ts_model <- ts_models[[TS_results$model]]
-  horizon <- nrow(dates_forecast)
+  horizon <- nrow(matrix_xreg)
   
   forecast_ts  <- forecast(ts_model, h = horizon, xreg = matrix_xreg)
   forecast_ts <- as.vector(forecast_ts$mean)
@@ -109,7 +110,7 @@ recursive_forecast <- function(matrix_set,
   ## 
   if(is.test == TRUE){
     forecast_rec_table <-
-      data.table(FECHA = dates_forecast$FECHA, forecast_rec)
+      data.table(FECHA = dates_to_forecast, forecast_rec)
     
     TXS_test <- matrix_set[ FECHA %in% dates_forecast$FECHA,
                             .(FECHA, TXS)]

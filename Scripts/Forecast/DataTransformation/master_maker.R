@@ -47,6 +47,7 @@ master_maker <- function(dataset, train_cut, test_cut,
   dataset[HOLIDAYS == 0, TXS := na.interpolation(TXS)] 
   # días festivos iguales a cero en la serie
   dataset[HOLIDAYS == 1,TXS :=0 ]
+
   
   
   # lag variables 
@@ -80,8 +81,11 @@ master_maker <- function(dataset, train_cut, test_cut,
   dataset[, HOLIDAYS_POST := shift(HOLIDAYS, 1,0, "lag")]
   dataset[, PAYDAY_PRE := shift(PAYDAY, 1,0, "lead")]
   dataset[, PAYDAY_POST := shift(PAYDAY, 1,0, "lag")]
-  
   dataset[, HALF_MONTH := ifelse(DAY <= 15, 1, 0)]
+  
+  #eliminate holidays observations 
+  dataset <- dataset[HOLIDAYS == 0, ]
+  dataset[, HOLIDAYS := NULL]
   
   # last 5 days mean
   dataset[, LAST5_MEAN := rollmean(TXS, 5, align = "right",
@@ -105,9 +109,6 @@ master_maker <- function(dataset, train_cut, test_cut,
   neworder <- c("TXS",colnames(dataset)[-pivot])
   setcolorder(dataset, neworder)
   
-  #eliminate holidays observations 
-  dataset <- dataset[HOLIDAYS == 0, ]
-  dataset[, HOLIDAYS := NULL]
   
   matrix_set <- dataset[FECHA >= date_cut,]
   matrix_train <- matrix_set[ FECHA <= train_cut,

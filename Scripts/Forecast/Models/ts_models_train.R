@@ -18,10 +18,10 @@ ts_models_train <- function(matrix_train, matrix_val, xreg_vector){
 
   train_ts <- ts(matrix_train$TXS )
   ts_models <- list(
-    ARIMA = auto.arima(train_ts, xreg = matrix_trainxreg),
+    ARIMA = auto.arima(train_ts),
     ETS = ets(train_ts),
-    NeuralNetwork = nnetar(train_ts, xreg = matrix_trainxreg),
-    TBATS = tbats(train_ts, xreg = matrix_trainxreg)
+    NeuralNetwork = nnetar(train_ts, xreg = matrix_trainxreg)
+    # TBATS = tbats(train_ts, xreg = matrix_trainxreg)
   )
   
   train_fittes <- sapply(ts_models, fitted)
@@ -36,9 +36,9 @@ ts_models_train <- function(matrix_train, matrix_val, xreg_vector){
     ARIMA = Arima(val_ts, model = ts_models$ARIMA, xreg = matrix_valxreg),
     ETS = ets(val_ts, model = ts_models$ETS),
     NeuralNetwork = nnetar(val_ts, model = ts_models$NeuralNetwork,
-                           xreg = matrix_valxreg),
-    TBATS = tbats(val_ts, model = ts_models$TBATS,
-                  xreg = matrix_valxreg)
+                           xreg = matrix_valxreg)
+    # TBATS = tbats(val_ts, model = ts_models$TBATS,
+    #               xreg = matrix_valxreg)
   )
   
   val_fittes <- sapply(ts_validation , fitted)
