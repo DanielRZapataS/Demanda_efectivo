@@ -72,8 +72,13 @@ recursive_forecast <- function(matrix_set,
   )
   ts_model <- ts_models[[TS_results$model]]
   horizon <- nrow(matrix_xreg)
-  
-  forecast_ts  <- forecast(ts_model, h = horizon, xreg = matrix_xreg)
+  model_class <- class(ts_model)[1]
+  if(model_class %in% c("ARIMA", "ETS") ){
+    forecast_ts  <- forecast(ts_model, h = horizon)
+  }else{
+    forecast_ts  <- forecast(ts_model, h = horizon, xreg = matrix_xreg)
+  }
+
   forecast_ts <- as.vector(forecast_ts$mean)
   
   ## MODEL COMBINATION
