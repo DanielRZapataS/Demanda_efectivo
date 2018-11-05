@@ -15,5 +15,5 @@ set_environment()
 # Load configuration file and values
 config <- fromJSON("settings.json")
 # Runing forecasting and results process
-forecast_qcajeros()
+# forecast_qcajeros()
 # results_maker()

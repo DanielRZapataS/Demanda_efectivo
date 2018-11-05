@@ -9,8 +9,8 @@ offices <- unique(staging$codigoOficina)
 total <- length(offices) 
 
 #Meta
-holidays <- get.path(meta_path, "holiday") %>% fread()
-paydays <- get.path(meta_path, "payday") %>% fread()
+holidays <- get.path(meta_path, "holiday_dummy") %>% fread()
+paydays <- get.path(meta_path, "payday_dummy") %>% fread()
 holidays[ , fecha := as.Date(fecha, "%d/%m/%Y")]
 paydays[,  fecha := as.Date(fecha, "%d/%m/%Y")] 
 names(holidays) <- toupper(names(holidays))
