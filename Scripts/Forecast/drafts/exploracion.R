@@ -23,7 +23,7 @@ holidays[ , FECHA := as.Date(FECHA, "%Y-%m-%d")]
 paydays[,  FECHA := as.Date(FECHA, "%d/%m/%Y")] 
 taxes[,  FECHA := as.Date(FECHA, "%Y-%m-%d")] 
 
-dataset <- staging[codigoOficina == offices[2],
+dataset <- staging[codigoOficina == offices[3],
                    .(TXS = as.numeric(TXS), FECHA)] 
 dataset[, ':='(DAY = day(FECHA),
                MES = month(FECHA),
@@ -55,6 +55,9 @@ dataset <- dataset[!(WEEKDAY %in% c(7,1)) ,]
 # # dias festivos iguales a cero en la serie
 # dataset[HOLIDAYS == 1,TXS :=0 ]
 dataset <- dataset[HOLIDAYS == 0]
+
+ndiffs(dataset$TXS)
+
 dataset[, ':='(TXS_LAG1 = shift(TXS, 1, NA, "lag"))]
 dataset[, TXS_DIFF1 := TXS - TXS_LAG1]
 dataset[, ':='(TXS_DIFF1_LAG = shift(TXS_DIFF1, 1, NA, "lag"))]
@@ -66,6 +69,28 @@ dataset[, .(FECHA,
             TXS_DIFF1,
             TXS_DIFF1_LAG,
             TXS_DIFF2)]
+
+mean <- mean(dataset$TXS, na.rm = T)
+sd <- sd(dataset$TXS, na.rm = T)
+
+
+
+
+ggplot(dataset, aes(FECHA, TXS) )+
+  geom_line(size = 1, alpha = 1)+
+  geom_hline(
+    yintercept = c(mean, mean + 2*sd, mean - 2*sd,
+                   mean + sd, mean - sd),
+    linetype = 1,
+    size = 0.5,
+    alpha = 0.5,
+    color = "blue"
+  )+
+  geom_vline(data = taxes[TAXE_DAY == 1],
+             aes(xintercept = as.numeric(FECHA),
+                 color = TAXE_TYPE
+             )
+  )
 
 
 plot <- dataset[, .(FECHA, TXS_DIFF1)]
@@ -124,3 +149,5 @@ plot2 <- ggplot(plot, aes(FECHA, TXS_DIFF1) )+
 
 plot2 <- ggplotly(plot2)
 plot2
+
+
