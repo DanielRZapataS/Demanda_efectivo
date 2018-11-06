@@ -1,6 +1,6 @@
-install.packages("httr")
-install.packages("rvest")
-install.packages("stringr")
+# install.packages("httr")
+# install.packages("rvest")
+# install.packages("stringr")
 
 library(rvest)
 library(stringr)
@@ -101,6 +101,17 @@ datos <- data.table(YEAR = rep(c(2013:2018), each = nrow(datos)),
                     HOLIDAYS = c(datos$`2013`, datos$`2014`, datos$`2015`,
                                  datos$`2016`, datos$`2017`, datos$`2018`))
 datos[, TYPE := rep(type, times = length(2013:2018))]
+
+#festivos bancarios son el ultimo dia habil del año 
+datos1 <- data.table(YEAR = c(2013:2018), 
+                     HOLIDAYS  = c("27 de diciembre",
+                                   "26 de diciembre",
+                                   "25 de diciembre",
+                                   "30 de diciembre",
+                                   "29 de diciembre",
+                                   "28 de diciembre"))
+datos1[, TYPE := "Bancario"]
+datos <- rbindlist(list(datos, datos1), use.names = T)
                     
 datos[, DAY := as.numeric(substr(HOLIDAYS, 1, 2))]
 
