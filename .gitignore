@@ -4,8 +4,7 @@
 .Ruserdata
 .png 
 *.png 
-.csv 
-*.csv 
 .xlsx
-Data/*
-Data/ 
+Data/Forecast/Original/ 
+Data/Forecast/Staging/
+Results/Tables/

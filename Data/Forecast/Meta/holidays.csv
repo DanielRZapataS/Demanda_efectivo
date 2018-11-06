@@ -1,0 +1,127 @@
+YEAR,HOLIDAYS,TYPE,DAY,MONTH,FECHA
+2013,1 de enero,Aoo Nuevo,01,01,2013-01-01
+2013,7 de enero,Epifania ,07,01,2013-01-07
+2013,25 de marzo,San Jose,25,03,2013-03-25
+2013,24 de marzo,Domingo de Ramos,24,03,2013-03-24
+2013,28 de marzo,Jueves Santo,28,03,2013-03-28
+2013,29 de marzo,Viernes Santo,29,03,2013-03-29
+2013,31 de marzo,Domingo de Pascua,31,03,2013-03-31
+2013,1 de mayo,Dia del Trabajo,01,05,2013-05-01
+2013,13 de mayo,Ascension de Jesus,13,05,2013-05-13
+2013,3 de junio,Corpus Christi,03,06,2013-06-03
+2013,10 de junio,Sagrado Corazon de Jesus,10,06,2013-06-10
+2013,1 de julio,San Pedro y San Pablo,01,07,2013-07-01
+2013,20 de julio,Grito de Independencia,20,07,2013-07-20
+2013,7 de agosto,Batalla de Boyaca,07,08,2013-08-07
+2013,19 de agosto,Asuncion de la Virgen,19,08,2013-08-19
+2013,14 de octubre,Dia de la Raza,14,10,2013-10-14
+2013,4 de noviembre,Todos los Santos,04,11,2013-11-04
+2013,11 de noviembre,Independencia de Cartagena,11,11,2013-11-11
+2013,8 de diciembre,Inmaculada Concepcion,08,12,2013-12-08
+2013,25 de diciembre,Navidad,25,12,2013-12-25
+2014,1 de enero,Aoo Nuevo,01,01,2014-01-01
+2014,6 de enero,Epifania ,06,01,2014-01-06
+2014,24 de marzo,San Jose,24,03,2014-03-24
+2014,13 de abril,Domingo de Ramos,13,04,2014-04-13
+2014,17 de abril,Jueves Santo,17,04,2014-04-17
+2014,18 de abril,Viernes Santo,18,04,2014-04-18
+2014,20 de abril,Domingo de Pascua,20,04,2014-04-20
+2014,1 de mayo,Dia del Trabajo,01,05,2014-05-01
+2014,2 de junio,Ascension de Jesus,02,06,2014-06-02
+2014,23 de junio,Corpus Christi,23,06,2014-06-23
+2014,30 de junio,Sagrado Corazon de Jesus,30,06,2014-06-30
+2014,30 de junio,San Pedro y San Pablo,30,06,2014-06-30
+2014,20 de julio,Grito de Independencia,20,07,2014-07-20
+2014,7 de agosto,Batalla de Boyaca,07,08,2014-08-07
+2014,18 de agosto,Asuncion de la Virgen,18,08,2014-08-18
+2014,13 de octubre,Dia de la Raza,13,10,2014-10-13
+2014,3 de noviembre,Todos los Santos,03,11,2014-11-03
+2014,17 de noviembre,Independencia de Cartagena,17,11,2014-11-17
+2014,8 de diciembre,Inmaculada Concepcion,08,12,2014-12-08
+2014,25 de diciembre,Navidad,25,12,2014-12-25
+2015,1 de enero,Aoo Nuevo,01,01,2015-01-01
+2015,12 de enero,Epifania ,12,01,2015-01-12
+2015,23 de marzo,San Jose,23,03,2015-03-23
+2015,29 de marzo,Domingo de Ramos,29,03,2015-03-29
+2015,2 de abril,Jueves Santo,02,04,2015-04-02
+2015,3 de abril,Viernes Santo,03,04,2015-04-03
+2015,5 de abril,Domingo de Pascua,05,04,2015-04-05
+2015,1 de mayo,Dia del Trabajo,01,05,2015-05-01
+2015,18 de mayo,Ascension de Jesus,18,05,2015-05-18
+2015,8 de junio,Corpus Christi,08,06,2015-06-08
+2015,15 de junio,Sagrado Corazon de Jesus,15,06,2015-06-15
+2015,29 de junio,San Pedro y San Pablo,29,06,2015-06-29
+2015,20 de julio,Grito de Independencia,20,07,2015-07-20
+2015,7 de agosto,Batalla de Boyaca,07,08,2015-08-07
+2015,17 de agosto,Asuncion de la Virgen,17,08,2015-08-17
+2015,12 de octubre,Dia de la Raza,12,10,2015-10-12
+2015,2 de noviembre,Todos los Santos,02,11,2015-11-02
+2015,16 de noviembre,Independencia de Cartagena,16,11,2015-11-16
+2015,8 de diciembre,Inmaculada Concepcion,08,12,2015-12-08
+2015,25 de diciembre,Navidad,25,12,2015-12-25
+2016,1 de enero,Aoo Nuevo,01,01,2016-01-01
+2016,11 de enero,Epifania ,11,01,2016-01-11
+2016,21 de marzo,San Jose,21,03,2016-03-21
+2016,20 de marzo,Domingo de Ramos,20,03,2016-03-20
+2016,24 de marzo,Jueves Santo,24,03,2016-03-24
+2016,25 de marzo,Viernes Santo,25,03,2016-03-25
+2016,27 de marzo,Domingo de Pascua,27,03,2016-03-27
+2016,1 de mayo,Dia del Trabajo,01,05,2016-05-01
+2016,9 de mayo,Ascension de Jesus,09,05,2016-05-09
+2016,30 de mayo,Corpus Christi,30,05,2016-05-30
+2016,6 de junio,Sagrado Corazon de Jesus,06,06,2016-06-06
+2016,4 de julio,San Pedro y San Pablo,04,07,2016-07-04
+2016,20 de julio,Grito de Independencia,20,07,2016-07-20
+2016,7 de agosto,Batalla de Boyaca,07,08,2016-08-07
+2016,15 de agosto,Asuncion de la Virgen,15,08,2016-08-15
+2016,17 de octubre,Dia de la Raza,17,10,2016-10-17
+2016,7 de noviembre,Todos los Santos,07,11,2016-11-07
+2016,14 de noviembre,Independencia de Cartagena,14,11,2016-11-14
+2016,8 de diciembre,Inmaculada Concepcion,08,12,2016-12-08
+2016,25 de diciembre,Navidad,25,12,2016-12-25
+2017,1 de enero,Aoo Nuevo,01,01,2017-01-01
+2017,9 de enero,Epifania ,09,01,2017-01-09
+2017,20 de marzo,San Jose,20,03,2017-03-20
+2017,9 de abril,Domingo de Ramos,09,04,2017-04-09
+2017,13 de abril,Jueves Santo,13,04,2017-04-13
+2017,14 de abril,Viernes Santo,14,04,2017-04-14
+2017,16 de abril,Domingo de Pascua,16,04,2017-04-16
+2017,1 de mayo,Dia del Trabajo,01,05,2017-05-01
+2017,29 de mayo,Ascension de Jesus,29,05,2017-05-29
+2017,19 de junio,Corpus Christi,19,06,2017-06-19
+2017,26 de junio,Sagrado Corazon de Jesus,26,06,2017-06-26
+2017,3 de julio,San Pedro y San Pablo,03,07,2017-07-03
+2017,20 de julio,Grito de Independencia,20,07,2017-07-20
+2017,7 de agosto,Batalla de Boyaca,07,08,2017-08-07
+2017,21 de agosto,Asuncion de la Virgen,21,08,2017-08-21
+2017,16 de octubre,Dia de la Raza,16,10,2017-10-16
+2017,6 de noviembre,Todos los Santos,06,11,2017-11-06
+2017,13 de noviembre,Independencia de Cartagena,13,11,2017-11-13
+2017,8 de diciembre,Inmaculada Concepcion,08,12,2017-12-08
+2017,25 de diciembre,Navidad,25,12,2017-12-25
+2018,1 de enero,Aoo Nuevo,01,01,2018-01-01
+2018,8 de enero,Epifania ,08,01,2018-01-08
+2018,19 de marzo,San Jose,19,03,2018-03-19
+2018,25 de marzo,Domingo de Ramos,25,03,2018-03-25
+2018,29 de marzo,Jueves Santo,29,03,2018-03-29
+2018,30 de marzo,Viernes Santo,30,03,2018-03-30
+2018,1 de abril,Domingo de Pascua,01,04,2018-04-01
+2018,1 de mayo,Dia del Trabajo,01,05,2018-05-01
+2018,14 de mayo,Ascension de Jesus,14,05,2018-05-14
+2018,4 de junio,Corpus Christi,04,06,2018-06-04
+2018,11 de junio,Sagrado Corazon de Jesus,11,06,2018-06-11
+2018,2 de julio,San Pedro y San Pablo,02,07,2018-07-02
+2018,20 de julio,Grito de Independencia,20,07,2018-07-20
+2018,7 de agosto,Batalla de Boyaca,07,08,2018-08-07
+2018,20 de agosto,Asuncion de la Virgen,20,08,2018-08-20
+2018,15 de octubre,Dia de la Raza,15,10,2018-10-15
+2018,5 de noviembre,Todos los Santos,05,11,2018-11-05
+2018,12 de noviembre,Independencia de Cartagena,12,11,2018-11-12
+2018,8 de diciembre,Inmaculada Concepcion,08,12,2018-12-08
+2018,25 de diciembre,Navidad,25,12,2018-12-25
+2013,27 de diciembre,Bancario,27,12,2013-12-27
+2014,26 de diciembre,Bancario,26,12,2014-12-26
+2015,25 de diciembre,Bancario,25,12,2015-12-25
+2016,30 de diciembre,Bancario,30,12,2016-12-30
+2017,29 de diciembre,Bancario,29,12,2017-12-29
+2018,28 de diciembre,Bancario,28,12,2018-12-28
